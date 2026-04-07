@@ -42,3 +42,7 @@ Inside the OpenClaw dashboard settings, set your Ollama Host to:
 http://127.0.0.1:11434
 
 Note: Since both services reside on the same machine, OpenClaw communicates with Ollama internally via the loopback interface, while Nginx protects the external access point.
+
+## About
+
+This project is provided for security hardening purposes. Nginx Open Source is used under the BSD-2-Clause license.
