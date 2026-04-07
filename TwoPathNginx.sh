@@ -14,8 +14,9 @@ Environment="OLLAMA_HOST=127.0.0.1:11434"
 Environment="OLLAMA_ORIGINS=*"
 EOF
 
-# Note: For OpenClaw, ensure you start it bound to 127.0.0.1. 
-# If using Docker for OpenClaw, run it with: -p 127.0.0.1:9090:9090
+# IMPORTANT: For OpenClaw, ensure you start it bound to 127.0.0.1
+# If using Docker for OpenClaw, run it with: -p 127.0.0.1:18789:18789
+# Standard OpenClaw port is 18789
 
 sudo systemctl daemon-reload
 sudo systemctl restart ollama
@@ -35,23 +36,31 @@ server {
     auth_basic_user_file /etc/nginx/.htpasswd;
     client_max_body_size 100M;
 
-    # ROUTE 1: The OpenClaw Dashboard
+    # ROUTE 1: The OpenClaw Dashboard (Port 18789 - CORRECTED)
     location / {
-        proxy_pass http://127.0.0.1:9090; 
+        proxy_pass http://127.0.0.1:18789; 
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
     }
 
-    # ROUTE 2: The Ollama API (for streaming and logic)
-    location /api/ {
-        proxy_pass http://127.0.0.1:11434;
+    # ROUTE 2: The Ollama API (Port 11434)
+    location /ollama/ {
+        proxy_pass http://127.0.0.1:11434/;
         proxy_http_version 1.1;
         proxy_set_header Connection "";
         proxy_buffering off;
         proxy_read_timeout 600s;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
         
-        # CORS fix for browser-based frontends
+        # CORS fix for streaming
         add_header 'Access-Control-Allow-Origin' '*' always;
+        add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
+        add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization' always;
     }
 }
 EOF
@@ -63,8 +72,8 @@ sudo nginx -t && sudo systemctl restart nginx
 
 echo "-------------------------------------------------------"
 echo "COMPLETE! Both services are now behind one password."
-echo "Access the Dashboard at: http://$MY_IP"
-echo "In OpenClaw Settings, set Ollama URL to: http://127.0.0.1:11434"
+echo "Access the OpenClaw Dashboard at: http://$MY_IP"
+echo "Access Ollama API at: http://$MY_IP/ollama/"
 echo "Username: $MY_USER"
 echo "Password: $MY_PASSWORD"
 echo "-------------------------------------------------------"
