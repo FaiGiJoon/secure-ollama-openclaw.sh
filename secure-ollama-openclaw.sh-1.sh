@@ -34,7 +34,7 @@ server {
     location / {
         # Authentication
         auth_basic "Restricted AI Access";
-        auth_basic_user_file /etc/nginx/.htpasswd;
+        auth_basic_user_file /etc/nginx/.htpasswd; 
 
         # CORS Headers for OpenClaw
         add_header 'Access-Control-Allow-Origin' '*' always;
