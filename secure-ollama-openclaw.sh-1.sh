@@ -55,6 +55,8 @@ server {
         proxy_pass http://127.0.0.1:11434;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
         
         # Streaming settings
         proxy_http_version 1.1;
@@ -72,6 +74,7 @@ sudo nginx -t && sudo systemctl restart nginx
 
 echo "-------------------------------------------------------"
 echo "SETUP COMPLETE"
+echo "Access at: http://$DOMAIN_OR_IP"
 echo "In OpenClaw settings, set the OLLAMA_HOST to:"
 echo "http://$MY_USER:$MY_PASSWORD@$DOMAIN_OR_IP"
 echo "-------------------------------------------------------"
