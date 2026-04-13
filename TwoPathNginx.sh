@@ -15,8 +15,8 @@ Environment="OLLAMA_ORIGINS=*"
 EOF
 
 # IMPORTANT: For OpenClaw, ensure you start it bound to 127.0.0.1
-# If using Docker for OpenClaw, run it with: -p 127.0.0.1:18789:18789
-# Standard OpenClaw port is 18789
+# If using Docker for OpenClaw, run it with: -p 127.0.0.1:3000:3000
+# Standard OpenClaw port is 3000
 
 sudo systemctl daemon-reload
 sudo systemctl restart ollama
@@ -36,9 +36,9 @@ server {
     auth_basic_user_file /etc/nginx/.htpasswd;
     client_max_body_size 100M;
 
-    # ROUTE 1: The OpenClaw Dashboard (Port 18789 - CORRECTED)
+    # ROUTE 1: The OpenClaw Dashboard (Port 3000)
     location / {
-        proxy_pass http://127.0.0.1:18789; 
+        proxy_pass http://127.0.0.1:3000;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
