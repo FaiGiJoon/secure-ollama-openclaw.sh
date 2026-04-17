@@ -1,4 +1,15 @@
 
+        
+      # ... rest of your steps
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+#
+# https://github.com/microsoft/action-psscriptanalyzer
+# For more information on PSScriptAnalyzer in general, see
+# https://github.com/PowerShell/PSScriptAnalyzer
+
 name: PSScriptAnalyzer
 
 on: [push, pull_request]
@@ -15,21 +26,6 @@ jobs:
         uses: actions/checkout@v4
         
       # ... rest of your steps
-
-
-
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-#
-# https://github.com/microsoft/action-psscriptanalyzer
-# For more information on PSScriptAnalyzer in general, see
-# https://github.com/PowerShell/PSScriptAnalyzer
-
-name: PSScriptAnalyzer
-
 on:
   push:
     branches: [ "main" ]
