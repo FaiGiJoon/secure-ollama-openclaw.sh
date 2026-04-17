@@ -1,3 +1,24 @@
+
+name: PSScriptAnalyzer
+
+on: [push, pull_request]
+
+# Add this block here
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      # ... rest of your steps
+
+
+
+
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support
