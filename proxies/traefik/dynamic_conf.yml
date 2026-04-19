@@ -1,0 +1,45 @@
+http:
+  routers:
+    ollama:
+      rule: "PathPrefix(`/ollama`)"
+      service: ollama-service
+      middlewares:
+        - auth
+        - ollama-strip-prefix
+      entryPoints:
+        - web
+
+    openclaw:
+      rule: "PathPrefix(`/`)"
+      service: openclaw-service
+      middlewares:
+        - auth
+      entryPoints:
+        - web
+
+  services:
+    ollama-service:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:11434"
+        # Streaming support: Traefik handles this well by default,
+        # but ensure no response buffering is enabled.
+        responseForwarding:
+          flushInterval: -1
+
+    openclaw-service:
+      loadBalancer:
+        servers:
+          - url: "http://127.0.0.1:3000"
+
+  middlewares:
+    auth:
+      basicAuth:
+        # admin:password (Generate with: echo $(htpasswd -nb admin password) | cut -d' ' -f2)
+        users:
+          - "admin:$$apr1$$869p989p$$098098098098098"
+
+    ollama-strip-prefix:
+      stripPrefix:
+        prefixes:
+          - "/ollama"

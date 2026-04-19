@@ -1,0 +1,36 @@
+_format_version: "3.0"
+_transform: true
+
+services:
+  - name: ollama-service
+    url: http://127.0.0.1:11434
+    routes:
+      - name: ollama-route
+        paths:
+          - /ollama
+        strip_path: true
+    plugins:
+      - name: basic-auth
+      - name: cors
+        config:
+          origins:
+            - "*"
+          methods:
+            - GET
+            - POST
+            - OPTIONS
+
+  - name: openclaw-service
+    url: http://127.0.0.1:3000
+    routes:
+      - name: openclaw-route
+        paths:
+          - /
+    plugins:
+      - name: basic-auth
+
+consumers:
+  - username: admin
+    basicauth_credentials:
+      - username: admin
+        password: YourSecurePassword

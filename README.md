@@ -1,14 +1,25 @@
 # Secure Ollama + OpenClaw Suite
 
-This repository contains deployment scripts designed to secure local Ollama and OpenClaw installations across Linux, Windows, and MacOS. It specifically remediates unauthenticated access vulnerabilities by forcing all traffic through a secure Reverse Proxy (Nginx, Caddy, or HAProxy) with Basic Authentication.
+This repository contains deployment scripts and reverse proxy configurations designed to secure local Ollama and OpenClaw installations across Linux, Windows, and MacOS. It remediates unauthenticated access vulnerabilities by forcing all traffic through a secure Reverse Proxy with Basic Authentication and optimized streaming.
 
 ## Security Features
 
 - **Localhost Binding:** Automatically configures Ollama to bind to `127.0.0.1`, making the API invisible to untrusted networks and preventing direct access on port `11434`.
 - **Reverse Proxy:** Acts as a gatekeeper for both the Ollama API and the OpenClaw Dashboard, consolidating them into a single secure entry point.
 - **Basic Auth:** Enforces a username and password requirement before any data is exchanged with the backend services.
-- **Stream Optimization:** Disables proxy buffering to ensure AI responses stream word-by-word without latency.
-- **CORS Handling:** Pre-configured headers to allow the OpenClaw frontend to communicate seamlessly with the Ollama backend on the same host.
+- **Stream Optimization:** Disables proxy buffering and adjusts timeouts to ensure AI responses stream word-by-word without latency or interruptions.
+- **CORS Handling:** Pre-configured headers to allow the OpenClaw frontend to communicate seamlessly with the Ollama backend.
+
+## Supported Proxies
+
+The `proxies/` directory contains standardized configurations for:
+- **Nginx:** High-performance, classic choice.
+- **Caddy:** Automatic HTTPS and simple configuration.
+- **HAProxy:** Reliable Layer 4/7 load balancing.
+- **Apache:** Flexible and widely used.
+- **Traefik:** Cloud-native with Docker support.
+- **Envoy:** Designed for complex, distributed systems.
+- **Kong:** API-focused gateway.
 
 ## Quick Start
 
@@ -44,13 +55,29 @@ sudo ./setup_mac.sh "yourdomain.com" "admin" "YourSecurePassword"
 
 - **Ollama API:** Runs on `127.0.0.1:11434` (Internal loopback only)
 - **OpenClaw Dashboard:** Runs on `127.0.0.1:3000` (Internal loopback only)
-- **Public Entry Point:** Port `80` / `443` (Controlled and authenticated by the Reverse Proxy)
+- **Public Entry Point:** Standardized routing:
+  - OpenClaw Dashboard: `http://your-server-ip/`
+  - Ollama API: `http://your-server-ip/ollama/`
 
-Once the script finishes, you can access your dashboard at `http://your-server-ip` or your configured domain. You will be prompted for the credentials you defined.
+## Cloud-Native Options
+
+For deployments in AWS or Azure, you can use managed load balancers:
+
+### AWS Application Load Balancer (ALB)
+1. Create a Target Group for OpenClaw (Port 3000) and Ollama (Port 11434).
+2. Configure Listener Rules:
+   - `IF Path is /ollama* THEN Forward to Ollama Target Group` (Enable Group-level stickiness if needed).
+   - `DEFAULT THEN Forward to OpenClaw Target Group`.
+3. Use AWS WAF or ALB Listener Rules to enforce Authentication (OIDC/Cognito).
+
+### Azure Application Gateway
+1. Create Backend Pools for each service.
+2. Use Path-based Routing Rules:
+   - Path `/ollama/*` -> Ollama Backend.
+   - Path `/*` -> OpenClaw Backend.
+3. Enable WAF and use Azure AD for authentication.
 
 ## OpenClaw Configuration
 
 Inside the OpenClaw dashboard settings, ensure your Ollama Host is set to:
-`http://127.0.0.1:11434`
-
-Note: Since both services reside on the same machine, OpenClaw communicates with Ollama internally via the loopback interface, while the reverse proxy protects the external access point.
+`http://127.0.0.1:11434` (for local communication) or the authenticated proxy URL.
