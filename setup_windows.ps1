@@ -29,21 +29,11 @@ $HashedPwd = (caddy hash-password --plaintext $Password).Trim()
 $CaddyConfigDir = "C:\Caddy"
 if (!(Test-Path $CaddyConfigDir)) { New-Item -ItemType Directory -Path $CaddyConfigDir }
 
-$Caddyfile = @"
-$Domain {
-    basicauth /* {
-        $Username $HashedPwd
-    }
-
-    handle /api/* {
-        reverse_proxy 127.0.0.1:11434
-    }
-
-    handle /* {
-        reverse_proxy 127.0.0.1:3000
-    }
-}
-"@
+# Load template and replace placeholders
+$CaddyTemplate = Get-Content -Path "proxies\caddy\Caddyfile" -Raw
+$Caddyfile = $CaddyTemplate -replace "yourdomain.com", $Domain `
+                            -replace "admin", $Username `
+                            -replace "JDJhJDE0JDd2a3Z3...", $HashedPwd
 
 Set-Content -Path "$CaddyConfigDir\Caddyfile" -Value $Caddyfile
 
@@ -57,8 +47,7 @@ New-NetFirewallRule -DisplayName "Block-External-Ollama" -Direction Inbound -Loc
 
 # 6. Run Caddy
 Write-Host "Starting Caddy in background..."
-# Using 'caddy start' which runs Caddy in the background.
-# Note: For production use, it is recommended to set up Caddy as a proper service using NSSM or similar.
+caddy stop # Ensure old instances are stopped
 caddy start --config "$CaddyConfigDir\Caddyfile"
 
 Write-Host "Deployment finished. Restart the Ollama application for changes to take effect."

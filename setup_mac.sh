@@ -20,11 +20,8 @@ BREW_PATH="/usr/local/bin/brew"
 [[ -f "/opt/homebrew/bin/brew" ]] && BREW_PATH="/opt/homebrew/bin/brew"
 
 # Fix: Ensure Ollama binds to localhost only
-# This creates a global environment variable for the Ollama service
 echo "Setting OLLAMA_HOST to 127.0.0.1..."
-# Persistence using launchctl config (requires reboot)
 launchctl config user setenv OLLAMA_HOST "127.0.0.1"
-# Immediate effect for current session
 launchctl setenv OLLAMA_HOST "127.0.0.1"
 
 # Install Caddy
@@ -39,24 +36,15 @@ HASHED_PWD=$(caddy hash-password --plaintext "$PASS")
 CADDY_DIR="/etc/caddy"
 mkdir -p "$CADDY_DIR"
 
-cat <<EOF > "$CADDY_DIR/Caddyfile"
-$DOMAIN {
-    basicauth /* {
-        $USER $HASHED_PWD
-    }
+# Use the standardized template from proxies/caddy/
+cp proxies/caddy/Caddyfile "$CADDY_DIR/Caddyfile"
 
-    handle /api/* {
-        reverse_proxy 127.0.0.1:11434
-    }
-
-    handle /* {
-        reverse_proxy 127.0.0.1:3000
-    }
-}
-EOF
+# Inject values
+sed -i "" "s/yourdomain.com/$DOMAIN/" "$CADDY_DIR/Caddyfile"
+sed -i "" "s/admin/$USER/" "$CADDY_DIR/Caddyfile"
+sed -i "" "s|JDJhJDE0JDd2a3Z3...|$HASHED_PWD|" "$CADDY_DIR/Caddyfile"
 
 # Use 'brew services' as the user to start caddy
-# If running as root, we should specify the user
 USER_NAME=$(logname)
 sudo -u $USER_NAME $BREW_PATH services restart caddy
 

@@ -1,16 +1,17 @@
 # Replace with your actual domain
 yourdomain.com {
     # Basic Authentication (Hash the password using `caddy hash-password`)
-    basicauth /api/* {
-        admin JDJhJDE0JDd2a3Z3... # Example hash
-    }
     basicauth /* {
         admin JDJhJDE0JDd2a3Z3... # Example hash
     }
 
     # Proxy Ollama API
-    handle /api/* {
-        reverse_proxy 127.0.0.1:11434
+    handle /ollama/* {
+        uri strip_prefix /ollama
+        reverse_proxy 127.0.0.1:11434 {
+            header_up Host {host}
+            header_up X-Real-IP {remote_host}
+        }
     }
 
     # Proxy OpenClaw Frontend
