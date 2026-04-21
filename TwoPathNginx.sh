@@ -2,8 +2,15 @@
 
 # --- CONFIGURATION ---
 MY_USER="admin"
-MY_PASSWORD="YourSecretPassword"
+MY_PASSWORD="YourSecretPassword" # CHANGE THIS BEFORE RUNNING
 MY_IP=$(hostname -I | awk '{print $1}')
+
+# Security Check: Prevent execution with default password
+if [[ "$MY_PASSWORD" == "YourSecretPassword" ]]; then
+    echo "CRITICAL SECURITY ERROR: Default password detected."
+    echo "Please edit the MY_PASSWORD variable in this script to a secure value."
+    exit 1
+fi
 
 echo "--- 1. Locking Ollama & OpenClaw to Localhost ---"
 # Force Ollama to only listen internally
@@ -20,7 +27,8 @@ sudo systemctl restart ollama
 
 echo "--- 2. Setting up Nginx Password ---"
 sudo apt update && sudo apt install -y nginx apache2-utils
-echo "$MY_PASSWORD" | htpasswd -bc /etc/nginx/.htpasswd "$MY_USER"
+# Use printf to avoid trailing newline and -i to read from stdin securely
+printf "%s" "$MY_PASSWORD" | sudo htpasswd -ic /etc/nginx/.htpasswd "$MY_USER"
 
 echo "--- 3. Configuring Unified Reverse Proxy ---"
 # Use the standardized template from proxies/nginx/
