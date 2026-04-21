@@ -2,8 +2,15 @@
 
 # --- CONFIGURATION ---
 MY_USER="ollama_admin"
-MY_PASSWORD="YourSuperSecurePassword123"
+MY_PASSWORD="YourSuperSecurePassword123" # CHANGE THIS BEFORE RUNNING
 DOMAIN_OR_IP="your_server_ip"
+
+# Security Check: Prevent execution with default password
+if [[ "$MY_PASSWORD" == "YourSuperSecurePassword123" ]]; then
+    echo "CRITICAL SECURITY ERROR: Default password detected."
+    echo "Please edit the MY_PASSWORD variable in this script to a secure value."
+    exit 1
+fi
 
 # Multi-Agent Configuration
 RESEARCHER_MODEL="deepseek-coder"
@@ -27,7 +34,8 @@ echo "--- 2. Installing Nginx and Auth Tools ---"
 sudo apt update && sudo apt install -y nginx apache2-utils
 
 echo "--- 3. Creating Credentials ---"
-echo "$MY_PASSWORD" | htpasswd -bc /etc/nginx/.htpasswd "$MY_USER"
+# Use printf to avoid trailing newline and -i to read from stdin securely
+printf "%s" "$MY_PASSWORD" | sudo htpasswd -ic /etc/nginx/.htpasswd "$MY_USER"
 
 echo "--- 4. Configuring Nginx for OpenClaw Compatibility ---"
 cat <<EOF | sudo tee /etc/nginx/sites-available/ollama
@@ -89,8 +97,12 @@ fi
 
 echo "--- 7. Creating Shared Workspace ---"
 sudo mkdir -p "$SHARED_WORKSPACE"
-sudo chmod 777 "$SHARED_WORKSPACE"
-echo "Shared workspace created at $SHARED_WORKSPACE with open permissions."
+# Restricted permissions: Only the owner (root/sudo user) and group have access.
+# Avoid 777 which allows any local user to read/write agent data.
+sudo chmod 750 "$SHARED_WORKSPACE"
+# Recommendation: Change ownership to the user running OpenClaw if not root.
+# sudo chown -R $USER_RUNNING_OPENCLAW "$SHARED_WORKSPACE"
+echo "Shared workspace created at $SHARED_WORKSPACE with restricted permissions (750)."
 
 echo "--- 8. Ensuring Ollama Models are Present ---"
 check_and_pull_model() {
