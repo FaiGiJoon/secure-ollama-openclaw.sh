@@ -18,7 +18,6 @@ sudo mkdir -p /etc/systemd/system/ollama.service.d
 cat <<EOF | sudo tee /etc/systemd/system/ollama.service.d/override.conf
 [Service]
 Environment="OLLAMA_HOST=127.0.0.1:11434"
-Environment="OLLAMA_ORIGINS=*"
 EOF
 
 # Standard OpenClaw port is 3000
@@ -35,6 +34,10 @@ echo "--- 3. Configuring Unified Reverse Proxy ---"
 sudo cp proxies/nginx/ollama-openclaw.conf /etc/nginx/sites-available/ai-suite
 # Update placeholder domain to current IP or use _
 sudo sed -i "s/yourdomain.com/_/" /etc/nginx/sites-available/ai-suite
+
+# Security Enhancement: Disable server tokens if not already in the template
+# (though it's now in the template, we can ensure it via sed if needed,
+# but better to rely on the template being updated)
 
 echo "--- 4. Activation ---"
 sudo ln -sf /etc/nginx/sites-available/ai-suite /etc/nginx/sites-enabled/
