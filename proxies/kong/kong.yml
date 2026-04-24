@@ -11,14 +11,18 @@ services:
         strip_path: true
     plugins:
       - name: basic-auth
-      - name: cors
+      - name: request-transformer
         config:
-          origins:
-            - "*"
-          methods:
-            - GET
-            - POST
-            - OPTIONS
+          remove:
+            headers:
+              - origin
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-Frame-Options: SAMEORIGIN"
+              - "X-Content-Type-Options: nosniff"
+              - "Referrer-Policy: strict-origin-when-cross-origin"
 
   - name: openclaw-service
     url: http://127.0.0.1:3000
@@ -28,6 +32,13 @@ services:
           - /
     plugins:
       - name: basic-auth
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-Frame-Options: SAMEORIGIN"
+              - "X-Content-Type-Options: nosniff"
+              - "Referrer-Policy: strict-origin-when-cross-origin"
 
 consumers:
   - username: admin

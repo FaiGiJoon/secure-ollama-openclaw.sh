@@ -11,6 +11,16 @@ static_resources:
         typed_config:
           "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
           stat_prefix: ingress_http
+          response_headers_to_add:
+          - header:
+              key: "x-frame-options"
+              value: "SAMEORIGIN"
+          - header:
+              key: "x-content-type-options"
+              value: "nosniff"
+          - header:
+              key: "referrer-policy"
+              value: "strict-origin-when-cross-origin"
           route_config:
             name: local_route
             virtual_hosts:
@@ -23,6 +33,7 @@ static_resources:
                   cluster: ollama_service
                   prefix_rewrite: "/"
                   timeout: 3600s
+                  request_headers_to_remove: ["origin"]
               - match:
                   prefix: "/"
                 route:

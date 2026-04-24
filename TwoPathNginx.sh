@@ -18,7 +18,6 @@ sudo mkdir -p /etc/systemd/system/ollama.service.d
 cat <<EOF | sudo tee /etc/systemd/system/ollama.service.d/override.conf
 [Service]
 Environment="OLLAMA_HOST=127.0.0.1:11434"
-Environment="OLLAMA_ORIGINS=*"
 EOF
 
 # Standard OpenClaw port is 3000

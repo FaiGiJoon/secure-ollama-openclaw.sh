@@ -1,5 +1,12 @@
 # Replace with your actual domain
 yourdomain.com {
+    header {
+        # Security Headers
+        X-Frame-Options "SAMEORIGIN"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+
     # Basic Authentication (Hash the password using `caddy hash-password`)
     basicauth /* {
         admin JDJhJDE0JDd2a3Z3... # Example hash
@@ -11,6 +18,8 @@ yourdomain.com {
         reverse_proxy 127.0.0.1:11434 {
             header_up Host {host}
             header_up X-Real-IP {remote_host}
+            # Clear Origin to bypass Ollama's local CORS check
+            header_up -Origin
         }
     }
 
