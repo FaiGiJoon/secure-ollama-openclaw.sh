@@ -5,7 +5,9 @@ http:
       service: ollama-service
       middlewares:
         - auth
+        - security-headers
         - ollama-strip-prefix
+        - ollama-clear-origin
       entryPoints:
         - web
 
@@ -14,6 +16,7 @@ http:
       service: openclaw-service
       middlewares:
         - auth
+        - security-headers
       entryPoints:
         - web
 
@@ -39,7 +42,19 @@ http:
         users:
           - "admin:$$apr1$$869p989p$$098098098098098"
 
+    security-headers:
+      headers:
+        customResponseHeaders:
+          X-Frame-Options: "SAMEORIGIN"
+          X-Content-Type-Options: "nosniff"
+          Referrer-Policy: "strict-origin-when-cross-origin"
+
     ollama-strip-prefix:
       stripPrefix:
         prefixes:
           - "/ollama"
+
+    ollama-clear-origin:
+      headers:
+        customRequestHeaders:
+          Origin: ""
