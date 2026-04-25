@@ -23,6 +23,8 @@ static_resources:
                   cluster: ollama_service
                   prefix_rewrite: "/"
                   timeout: 3600s
+                  # Security: Remove Origin header to prevent insecure CORS responses from Ollama
+                  request_headers_to_remove: ["origin"]
               - match:
                   prefix: "/"
                 route:

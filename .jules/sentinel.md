@@ -1,4 +1,4 @@
-## 2025-05-14 - Hardcoded Default Credentials and Overly Permissive Workspaces
-**Vulnerability:** Deployment scripts contained hardcoded default passwords and created shared workspaces with `chmod 777` permissions.
-**Learning:** Initial setup scripts often use placeholder credentials that users might forget to change, and "quick-start" permissions (777) are frequently used to avoid path issues, creating significant local security risks.
-**Prevention:** Implement mandatory checks for default passwords in scripts and follow the principle of least privilege for file system permissions (e.g., 750 instead of 777). Use secure input methods for password generation (like `htpasswd -i`).
+## 2025-05-14 - Insecure CORS Wildcards and Proxy Header Leakage
+**Vulnerability:** The deployment scripts used OLLAMA_ORIGINS="*" which allowed unauthenticated cross-origin requests. Additionally, the proxies forwarded the 'Origin' header, which could trigger insecure CORS logic in the backend services.
+**Learning:** Defaulting to wildcard origins is a common "quick-fix" for connectivity issues that creates a massive security hole. Secure proxies should treat backends as trusted local services and sanitize headers like 'Origin' to prevent the backend from making its own (potentially insecure) security decisions.
+**Prevention:** Remove wildcard origin environment variables from systemd configurations. Use proxy directives to strip the 'Origin' header before forwarding to local AI backends, ensuring the proxy is the sole authority for CORS and authentication.

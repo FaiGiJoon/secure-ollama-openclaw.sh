@@ -11,6 +11,8 @@ yourdomain.com {
         reverse_proxy 127.0.0.1:11434 {
             header_up Host {host}
             header_up X-Real-IP {remote_host}
+            # Security: Remove Origin header to prevent insecure CORS responses from Ollama
+            header_up -Origin
         }
     }
 
