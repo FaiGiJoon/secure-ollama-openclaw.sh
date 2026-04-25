@@ -11,6 +11,12 @@ services:
         strip_path: true
     plugins:
       - name: basic-auth
+      # Security: Remove Origin header to prevent insecure CORS responses from Ollama
+      - name: request-transformer
+        config:
+          remove:
+            headers:
+              - origin
       - name: cors
         config:
           origins:
