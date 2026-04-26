@@ -11,6 +11,8 @@ yourdomain.com {
         reverse_proxy 127.0.0.1:11434 {
             header_up Host {host}
             header_up X-Real-IP {remote_host}
+            # Security: Strip Origin header to prevent insecure wildcard CORS
+            header_up -Origin
         }
     }
 

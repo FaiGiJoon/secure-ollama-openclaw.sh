@@ -19,6 +19,12 @@ services:
             - GET
             - POST
             - OPTIONS
+      # Security: Strip Origin header to prevent insecure wildcard CORS
+      - name: request-transformer
+        config:
+          remove:
+            headers:
+              - origin
 
   - name: openclaw-service
     url: http://127.0.0.1:3000
