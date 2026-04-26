@@ -24,7 +24,6 @@ sudo mkdir -p /etc/systemd/system/ollama.service.d
 cat <<EOF | sudo tee /etc/systemd/system/ollama.service.d/override.conf
 [Service]
 Environment="OLLAMA_HOST=127.0.0.1:11434"
-Environment="OLLAMA_ORIGINS=*"
 EOF
 
 sudo systemctl daemon-reload
@@ -72,6 +71,9 @@ server {
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$scheme;
+
+        # Security: Strip Origin header to prevent insecure wildcard CORS
+        proxy_set_header Origin "";
 
         # Streaming settings
         proxy_http_version 1.1;
