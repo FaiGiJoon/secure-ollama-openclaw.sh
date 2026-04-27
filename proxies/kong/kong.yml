@@ -11,6 +11,18 @@ services:
         strip_path: true
     plugins:
       - name: basic-auth
+      - name: request-transformer
+        config:
+          remove:
+            headers:
+              - "Origin"
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-Frame-Options: SAMEORIGIN"
+              - "X-Content-Type-Options: nosniff"
+              - "Referrer-Policy: strict-origin-when-cross-origin"
       - name: cors
         config:
           origins:
@@ -28,6 +40,13 @@ services:
           - /
     plugins:
       - name: basic-auth
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - "X-Frame-Options: SAMEORIGIN"
+              - "X-Content-Type-Options: nosniff"
+              - "Referrer-Policy: strict-origin-when-cross-origin"
 
 consumers:
   - username: admin

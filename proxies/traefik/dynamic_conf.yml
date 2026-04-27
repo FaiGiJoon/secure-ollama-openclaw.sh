@@ -4,6 +4,7 @@ http:
       rule: "PathPrefix(`/ollama`)"
       service: ollama-service
       middlewares:
+        - security-headers
         - auth
         - ollama-strip-prefix
       entryPoints:
@@ -13,6 +14,7 @@ http:
       rule: "PathPrefix(`/`)"
       service: openclaw-service
       middlewares:
+        - security-headers
         - auth
       entryPoints:
         - web
@@ -33,6 +35,12 @@ http:
           - url: "http://127.0.0.1:3000"
 
   middlewares:
+    security-headers:
+      headers:
+        frameDeny: true
+        contentTypeNosniff: true
+        referrerPolicy: "strict-origin-when-cross-origin"
+
     auth:
       basicAuth:
         # admin:password (Generate with: echo $(htpasswd -nb admin password) | cut -d' ' -f2)

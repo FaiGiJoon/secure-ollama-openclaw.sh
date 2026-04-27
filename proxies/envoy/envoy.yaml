@@ -23,6 +23,7 @@ static_resources:
                   cluster: ollama_service
                   prefix_rewrite: "/"
                   timeout: 3600s
+                  request_headers_to_remove: ["origin"]
               - match:
                   prefix: "/"
                 route:
