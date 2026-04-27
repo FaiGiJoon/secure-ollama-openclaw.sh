@@ -24,7 +24,6 @@ sudo mkdir -p /etc/systemd/system/ollama.service.d
 cat <<EOF | sudo tee /etc/systemd/system/ollama.service.d/override.conf
 [Service]
 Environment="OLLAMA_HOST=127.0.0.1:11434"
-Environment="OLLAMA_ORIGINS=*"
 EOF
 
 sudo systemctl daemon-reload
@@ -45,6 +44,11 @@ server {
 
     # Allow large requests (needed if you upload files/images to OpenClaw)
     client_max_body_size 100M;
+
+    # Security Headers
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
 
     location / {
         # Authentication
@@ -68,6 +72,7 @@ server {
 
         # Proxy to Ollama
         proxy_pass http://127.0.0.1:11434;
+        proxy_set_header Origin "";
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
